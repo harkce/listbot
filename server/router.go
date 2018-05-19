@@ -1,9 +1,10 @@
-package router
+package server
 
 import (
 	"net/http"
 
 	"github.com/goware/cors"
+	"github.com/harkce/listbot/webhook"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -15,6 +16,9 @@ func Router() http.Handler {
 		AllowedHeaders: []string{"*"},
 		MaxAge:         86400,
 	})
+
+	webhookHandler := webhook.Handler{}
+	router.POST("/webhook", webhookHandler.WebHook)
 
 	return cors.Handler(router)
 }
