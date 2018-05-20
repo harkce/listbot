@@ -56,9 +56,10 @@ func LoadList(ID string) string {
 	if l.Title == "" {
 		l.Title = "Untitled list"
 	}
-	listString := fmt.Sprintf("%s\n", l.Title)
+	listString := fmt.Sprintf("%s", l.Title)
 	for i, item := range l.List {
-		listString = fmt.Sprintf("%s%d. %s\n", listString, i+1, item)
+		listString += "\n"
+		listString = fmt.Sprintf("%s%d. %s", listString, i+1, item)
 	}
 	return listString
 }
