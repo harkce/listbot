@@ -3,7 +3,6 @@ package listbot
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -14,13 +13,15 @@ type List struct {
 
 func retrieveListFromDisk(ID string) (*List, error) {
 	var l List
-	raw, err := ioutil.ReadFile(fmt.Sprintf("%s%s%s.json",
-		os.Getenv("GOPATH"),
-		"/src/github.com/harkce/listbot/grouplist/",
-		ID))
-	if err != nil {
-		return &l, err
-	}
+	// raw, err := ioutil.ReadFile(fmt.Sprintf("%s%s%s.json",
+	//         os.Getenv("GOPATH"),
+	//         "/src/github.com/harkce/listbot/grouplist/",
+	//         ID))
+	// if err != nil {
+	//         return &l, err
+	// }
+
+	raw := os.Getenv(ID)
 
 	if err = json.Unmarshal(raw, &l); err != nil {
 		return &l, err
@@ -34,11 +35,12 @@ func saveListToDisk(ID string, l List) error {
 		return err
 	}
 
-	err = ioutil.WriteFile(fmt.Sprintf("%s%s%s.json",
-		os.Getenv("GOPATH"),
-		"/src/github.com/harkce/listbot/grouplist/",
-		ID), raw, 0644)
+	// err = ioutil.WriteFile(fmt.Sprintf("%s%s%s.json",
+	//         os.Getenv("GOPATH"),
+	//         "/src/github.com/harkce/listbot/grouplist/",
+	//         ID), raw, 0644)
 
+	err = os.Setenv(ID, raw)
 	if err != nil {
 		return err
 	}
