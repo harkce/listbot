@@ -26,7 +26,7 @@ func unsupportedEvent(e *linebot.Event) bool {
 func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	events, err := listbot.Client.ParseRequest(r)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error parse:", err)
 		hookResp(w)
 		return
 	}
