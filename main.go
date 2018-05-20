@@ -15,9 +15,12 @@ import (
 
 func main() {
 	log.Println("Starting listbot...")
-	gotenv.Load(os.Getenv("GOPATH") + "/src/github.com/harkce/listbot/.env")
+	err := gotenv.Load(os.Getenv("GOPATH") + "/src/github.com/harkce/listbot/.env")
+	if err != nil {
+		log.Println(err)
+	}
 
-	err := listbot.InitBot()
+	err = listbot.InitBot()
 	if err != nil {
 		log.Fatalln(err)
 		return
