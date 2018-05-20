@@ -10,6 +10,7 @@ import (
 
 	"github.com/harkce/listbot/listbot"
 	"github.com/harkce/listbot/server"
+	"github.com/subosito/gotenv"
 )
 
 const (
@@ -21,6 +22,7 @@ func main() {
 	log.Println("Starting listbot...")
 	os.Setenv("CHANNEL_SECRET", CHANNEL_SECRET)
 	os.Setenv("CHANNEL_TOKEN", CHANNEL_TOKEN)
+	gotenv.Load(os.Getenv("GOPATH") + "/src/github.com/harkce/listbot/.env")
 
 	err := listbot.InitBot()
 	if err != nil {
