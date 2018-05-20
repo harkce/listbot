@@ -119,9 +119,9 @@ func ParseRequest(channelSecret string, r *http.Request) ([]*linebot.Event, erro
 	if err != nil {
 		return nil, err
 	}
-	if !validateSignature(channelSecret, r.Header.Get("X-Line-Signature"), body) {
-		return nil, linebot.ErrInvalidSignature
-	}
+	// if !validateSignature(channelSecret, r.Header.Get("X-Line-Signature"), body) {
+	//         return nil, linebot.ErrInvalidSignature
+	// }
 
 	request := &struct {
 		Events []*linebot.Event `json:"events"`
