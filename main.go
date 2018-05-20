@@ -25,7 +25,7 @@ func main() {
 	gotenv.Load(os.Getenv("GOPATH") + "/src/github.com/harkce/listbot/.env")
 
 	//test
-	dbURL, _ := os.Getenv("DATABASE_URL")
+	dbURL := os.Getenv("DATABASE_URL")
 	fmt.Println(dbURL)
 
 	err := listbot.InitBot()
