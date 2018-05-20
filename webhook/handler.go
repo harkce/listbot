@@ -76,6 +76,20 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			sendReply(replyToken, replyMessage)
 			continue
 		}
+		if strings.HasPrefix(content, "/edit ") {
+			if len(args) < 3 {
+				replyMessage = ""
+			} else {
+				pos, err := strconv.Atoi(args[1])
+				if err != nil {
+					replyMessage = ""
+				} else {
+					replyMessage = listbot.EditItem(groupID, pos, strings.Join(args[2:], " "))
+				}
+			}
+			sendReply(replyToken, replyMessage)
+			continue
+		}
 		if strings.HasPrefix(content, "/delete ") {
 			if len(args) < 2 {
 				replyMessage = ""

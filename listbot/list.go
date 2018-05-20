@@ -87,6 +87,24 @@ func AddItem(ID, item string) string {
 	return fmt.Sprintf("Success add %s to %s", item, title)
 }
 
+func EditItem(ID string, pos int, item string) string {
+	l, err := retrieveListFromDisk(ID)
+	if len(l.List) == 0 || err != nil {
+		return "List empty"
+	}
+
+	if pos > len(l.List) {
+		return fmt.Sprintf("List just have %d item(s)", len(l.List))
+	}
+
+	l.List[pos-1] = item
+	err = saveListToDisk(ID, *l)
+	if err != nil {
+		return "Error edit list item"
+	}
+	return "Sucess edit item"
+}
+
 func DeleteItem(ID string, pos int) string {
 	l, err := retrieveListFromDisk(ID)
 	if len(l.List) == 0 || err != nil {
