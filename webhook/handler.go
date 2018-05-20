@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/harkce/listbot"
+	"github.com/harkce/listbot/listbot"
 	"github.com/harkce/listbot/server/response"
 	"github.com/julienschmidt/httprouter"
 	"github.com/line/line-bot-sdk-go/linebot"

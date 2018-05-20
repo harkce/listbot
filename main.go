@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/harkce/listbot"
+	"github.com/harkce/listbot/listbot"
 	"github.com/harkce/listbot/server"
 	"github.com/subosito/gotenv"
 )
