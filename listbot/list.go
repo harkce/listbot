@@ -23,7 +23,7 @@ func retrieveListFromDisk(ID string) (*List, error) {
 
 	raw := os.Getenv(ID)
 
-	if err = json.Unmarshal(raw, &l); err != nil {
+	if err := json.Unmarshal([]byte(raw), &l); err != nil {
 		return &l, err
 	}
 	return &l, nil
@@ -40,7 +40,7 @@ func saveListToDisk(ID string, l List) error {
 	//         "/src/github.com/harkce/listbot/grouplist/",
 	//         ID), raw, 0644)
 
-	err = os.Setenv(ID, raw)
+	err = os.Setenv(ID, string(raw))
 	if err != nil {
 		return err
 	}
