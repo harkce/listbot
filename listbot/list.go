@@ -78,7 +78,11 @@ func AddItem(ID, item string) string {
 	if err != nil {
 		return "Error adding to list"
 	}
-	return fmt.Sprintf("Success add %s to list", item)
+	title := l.Title
+	if title == "" {
+		title = "list"
+	}
+	return fmt.Sprintf("Success add %s to %s", item, title)
 }
 
 func DeleteItem(ID string, pos int) string {
