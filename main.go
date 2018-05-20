@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -23,14 +24,15 @@ func main() {
 	}
 
 	router := server.Router()
+	port := os.Getenv("PORT")
 
-	log.Println("Listbot started @:8063")
+	log.Println(fmt.Sprintf("Listbot started @:%s", port))
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
 	go func() {
-		http.ListenAndServe(":8063", router)
+		http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 	}()
 
 	<-sigChan
