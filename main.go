@@ -24,6 +24,10 @@ func main() {
 	os.Setenv("CHANNEL_TOKEN", CHANNEL_TOKEN)
 	gotenv.Load(os.Getenv("GOPATH") + "/src/github.com/harkce/listbot/.env")
 
+	//test
+	dbURL, _ := os.Getenv("DATABASE_URL")
+	fmt.Println(dbURL)
+
 	err := listbot.InitBot()
 	if err != nil {
 		log.Fatalln(err)
