@@ -10,17 +10,19 @@ import (
 
 	"github.com/harkce/listbot/listbot"
 	"github.com/harkce/listbot/server"
-	"github.com/subosito/gotenv"
+)
+
+const (
+	CHANNEL_SECRET = "1953ed2b01fbb896a7cd067804628184"
+	CHANNEL_TOKEN  = "7I0e9hSYEmdWRmXr/bK9x12WtLXF2vlWArGCe0yRVuuyF022ZJAxabuGWJ9u1SjvWnFspmpass12IvKWhj+oNxse1nXKQ+4l460RqveXMFa3pYAGJIYmGgp9+nkp3r8jxyXz1UIzU6Gkg54IrHrgKAdB04t89/1O/w1cDnyilFU="
 )
 
 func main() {
 	log.Println("Starting listbot...")
-	err := gotenv.Load(os.Getenv("GOPATH") + "/src/github.com/harkce/listbot/.env")
-	if err != nil {
-		log.Println(err)
-	}
+	os.Setenv("CHANNEL_SECRET", CHANNEL_SECRET)
+	os.Setenv("CHANNEL_TOKEN", CHANNEL_TOKEN)
 
-	err = listbot.InitBot()
+	err := listbot.InitBot()
 	if err != nil {
 		log.Fatalln(err)
 		return

@@ -1,14 +1,8 @@
 package webhook
 
 import (
-	"crypto/hmac"
-	"crypto/sha256"
-	"encoding/base64"
-	"encoding/json"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
@@ -30,7 +24,7 @@ func unsupportedEvent(e *linebot.Event) bool {
 }
 
 func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	events, err := ParseRequest(os.Getenv("CHANNEL_SECRET"), r)
+	events, err := listbot.Client.ParseRequest(r)
 	if err != nil {
 		log.Println("Error parse:", err)
 		hookResp(w)
@@ -38,7 +32,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	}
 
 	for _, event := range events {
-		if unsupportedEvent(event) {
+		if unsupportedEvent(&event) {
 			log.Println("Unsupported event")
 			continue
 		}
@@ -111,33 +105,4 @@ func sendReply(replyToken, content string) {
 	if err != nil {
 		log.Println("Error reply:", err)
 	}
-}
-
-func ParseRequest(channelSecret string, r *http.Request) ([]*linebot.Event, error) {
-	defer r.Body.Close()
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		return nil, err
-	}
-	// if !validateSignature(channelSecret, r.Header.Get("X-Line-Signature"), body) {
-	//         return nil, linebot.ErrInvalidSignature
-	// }
-
-	request := &struct {
-		Events []*linebot.Event `json:"events"`
-	}{}
-	if err = json.Unmarshal(body, request); err != nil {
-		return nil, err
-	}
-	return request.Events, nil
-}
-
-func validateSignature(channelSecret, signature string, body []byte) bool {
-	decoded, err := base64.StdEncoding.DecodeString(signature)
-	if err != nil {
-		return false
-	}
-	hash := hmac.New(sha256.New, []byte(channelSecret))
-	hash.Write(body)
-	return hmac.Equal(decoded, hash.Sum(nil))
 }
