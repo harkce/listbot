@@ -107,6 +107,7 @@ func ClearItem(ID string) string {
 	}
 
 	l.List = []string{}
+	l.Title = ""
 	err = saveListToDisk(ID, *l)
 	if err != nil {
 		return "Error clearing list item"

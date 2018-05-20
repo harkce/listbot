@@ -3,6 +3,7 @@ package webhook
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/harkce/listbot"
@@ -19,7 +20,7 @@ func hookResp(w http.ResponseWriter) {
 }
 
 func unsupportedEvent(e *linebot.Event) bool {
-	return e.Type != linebot.EventTypeMessage || e.Source != linebot.EventSourceTypeGroup
+	return e.Type != linebot.EventTypeMessage || e.Source.Type != linebot.EventSourceTypeGroup
 }
 
 func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -31,36 +32,77 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	}
 
 	for _, event := range events {
-		if unsupportedEvent(event) {
+		if unsupportedEvent(&event) {
+			log.Println("Unsupported event")
 			continue
 		}
 
 		message, ok := event.Message.(*linebot.TextMessage)
 		if !ok {
+			log.Println("Not a text message")
 			continue
 		}
 
 		content := message.Text
 		if !strings.HasPrefix(content, "/") {
+			log.Println("Not a bot command")
 			continue
 		}
 
+		var replyMessage string
+		groupID := event.Source.GroupID
+		replyToken := event.ReplyToken
+		args := strings.Split(content, " ")
 		if strings.HasPrefix(content, "/list") {
+			replyMessage = listbot.LoadList(groupID)
+			sendReply(replyToken, replyMessage)
 			continue
 		}
-		if strings.HasPrefix(content, "/title") {
+		if strings.HasPrefix(content, "/title ") {
+			if len(args) < 2 {
+				replyMessage = ""
+			} else {
+				replyMessage = listbot.SetTitle(groupID, strings.Join(args[1:], " "))
+			}
+			sendReply(replyToken, replyMessage)
 			continue
 		}
-		if strings.HasPrefix(content, "/add") {
+		if strings.HasPrefix(content, "/add ") {
+			if len(args) < 2 {
+				replyMessage = ""
+			} else {
+				replyMessage = listbot.AddItem(groupID, strings.Join(args[1:], " "))
+			}
+			sendReply(replyToken, replyMessage)
 			continue
 		}
-		if strings.HasPrefix(content, "/delete") {
+		if strings.HasPrefix(content, "/delete ") {
+			if len(args) < 2 {
+				replyMessage = ""
+			} else {
+				pos, err := strconv.Atoi(args[1])
+				if err != nil {
+					replyMessage = ""
+				} else {
+					replyMessage = listbot.DeleteItem(groupID, pos)
+				}
+			}
+			sendReply(replyToken, replyMessage)
 			continue
 		}
 		if strings.HasPrefix(content, "/clear") {
+			replyMessage = listbot.ClearItem(groupID)
+			sendReply(replyToken, replyMessage)
 			continue
 		}
 	}
 
 	hookResp(w)
+}
+
+func sendReply(replyToken, content string) {
+	_, err := listbot.Client.ReplyMessage(replyToken, linebot.NewTextMessage(content)).Do()
+	if err != nil {
+		log.Println("Error reply:", err)
+	}
 }
