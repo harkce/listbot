@@ -1,13 +1,13 @@
 package webhook
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/harkce/listbot/listbot"
-	"github.com/harkce/listbot/server/response"
 	"github.com/julienschmidt/httprouter"
 	"github.com/line/line-bot-sdk-go/linebot"
 )
@@ -15,8 +15,8 @@ import (
 type Handler struct{}
 
 func hookResp(w http.ResponseWriter) {
-	var resp interface{}
-	response.OK(w, resp)
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, "OK")
 }
 
 func unsupportedEvent(e *linebot.Event) bool {
