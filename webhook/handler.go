@@ -20,7 +20,7 @@ func hookResp(w http.ResponseWriter) {
 }
 
 func unsupportedEvent(e *linebot.Event) bool {
-	return e.Type != linebot.EventTypeMessage || e.Source.Type != linebot.EventSourceTypeGroup
+	return e.Type != linebot.EventTypeMessage && e.Type != linebot.EventTypeLeave && e.Source.Type != linebot.EventSourceTypeGroup
 }
 
 func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -37,15 +37,18 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			continue
 		}
 
+		if event.Type == linebot.EventTypeLeave {
+			listbot.UnsetEnv(event.Source.GroupID)
+			continue
+		}
+
 		message, ok := event.Message.(*linebot.TextMessage)
 		if !ok {
-			log.Println("Not a text message")
 			continue
 		}
 
 		content := message.Text
 		if !strings.HasPrefix(content, "/") {
-			log.Println("Not a bot command")
 			continue
 		}
 

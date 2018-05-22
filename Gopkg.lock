@@ -2,25 +2,10 @@
 
 
 [[projects]]
-  name = "github.com/dgrijalva/jwt-go"
-  packages = ["."]
-  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
-  version = "v3.2.0"
-
-[[projects]]
   name = "github.com/goware/cors"
   packages = ["."]
   revision = "dba6525398619dead495962a916728e7ee2ca322"
   version = "v1.0.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/harkce/beasiswakita"
-  packages = [
-    "authentication",
-    "errors"
-  ]
-  revision = "40cb90baded0a260c394e3d460e26843b3df8a17"
 
 [[projects]]
   name = "github.com/julienschmidt/httprouter"
@@ -42,25 +27,16 @@
 
 [[projects]]
   branch = "master"
-  name = "golang.org/x/crypto"
-  packages = [
-    "bcrypt",
-    "blowfish"
-  ]
-  revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp"
   ]
-  revision = "57065200b4b034a1c8ad54ff77069408c2218ae6"
+  revision = "8e0cdda24ed423affc8f35c241e5e9b16180338e"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7975e5ccdd6e199761973ab362a75efae772d9980ed8cdb93c62850b5fb91df5"
+  inputs-digest = "7df9cc612651f35668753cae6ccae482391e1addc4415cbd7b834a00fd3f7ed0"
   solver-name = "gps-cdcl"
   solver-version = 1

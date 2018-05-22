@@ -1,8 +1,12 @@
 package listbot
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 )
 
@@ -11,44 +15,79 @@ type List struct {
 	List  []string `json:"list"`
 }
 
-func retrieveListFromDisk(ID string) (*List, error) {
+func retrieve(ID string) (*List, error) {
 	var l List
-	// raw, err := ioutil.ReadFile(fmt.Sprintf("%s%s%s.json",
-	//         os.Getenv("GOPATH"),
-	//         "/src/github.com/harkce/listbot/grouplist/",
-	//         ID))
-	// if err != nil {
-	//         return &l, err
-	// }
 
-	raw := os.Getenv(ID)
+	res, err := http.Get(fmt.Sprintf("%s/get/%s", os.Getenv("KV_HOST"), ID))
+	if err != nil {
+		log.Println("Error seding request:", err)
+		return &l, err
+	}
 
-	if err := json.Unmarshal([]byte(raw), &l); err != nil {
+	raw, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Println("Error reading response:", err)
+		return &l, err
+	}
+
+	if err = json.Unmarshal(raw, &l); err != nil {
+		log.Println("Error unmarshal:", err)
 		return &l, err
 	}
 	return &l, nil
 }
 
-func saveListToDisk(ID string, l List) error {
+func save(ID string, l List) (*List, error) {
+	var list List
+
 	raw, err := json.Marshal(l)
 	if err != nil {
-		return err
+		return &list, err
 	}
 
-	// err = ioutil.WriteFile(fmt.Sprintf("%s%s%s.json",
-	//         os.Getenv("GOPATH"),
-	//         "/src/github.com/harkce/listbot/grouplist/",
-	//         ID), raw, 0644)
-
-	err = os.Setenv(ID, string(raw))
+	URL := fmt.Sprintf("%s/store/%s", os.Getenv("KV_HOST"), ID)
+	res, err := http.Post(URL, "application/json", bytes.NewBuffer(raw))
 	if err != nil {
+		return &list, err
+	}
+
+	raw, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		log.Println("Error reading response:", err)
+		return &list, err
+	}
+
+	if err = json.Unmarshal(raw, &list); err != nil {
+		log.Println("Error unmarshal:", err)
+		return &list, err
+	}
+	return &list, nil
+}
+
+func UnsetEnv(ID string) error {
+	client := &http.Client{}
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/remove/%s", os.Getenv("KV_HOST"), ID), nil)
+	if err != nil {
+		log.Println("Error create request:", err)
 		return err
 	}
+
+	res, err := client.Do(req)
+	if err != nil {
+		log.Println("Error sending request:", err)
+		return err
+	}
+
+	if _, err = ioutil.ReadAll(res.Body); err != nil {
+		log.Println("Error reading response:", err)
+		return err
+	}
+
 	return nil
 }
 
 func LoadList(ID string) string {
-	l, err := retrieveListFromDisk(ID)
+	l, err := retrieve(ID)
 	if len(l.List) == 0 || err != nil {
 		return "List empty"
 	}
@@ -65,9 +104,9 @@ func LoadList(ID string) string {
 }
 
 func SetTitle(ID, title string) string {
-	l, _ := retrieveListFromDisk(ID)
+	l, _ := retrieve(ID)
 	l.Title = title
-	err := saveListToDisk(ID, *l)
+	_, err := save(ID, *l)
 	if err != nil {
 		return "Error rename list title"
 	}
@@ -75,9 +114,9 @@ func SetTitle(ID, title string) string {
 }
 
 func AddItem(ID, item string) string {
-	l, _ := retrieveListFromDisk(ID)
+	l, _ := retrieve(ID)
 	l.List = append(l.List, item)
-	err := saveListToDisk(ID, *l)
+	_, err := save(ID, *l)
 	if err != nil {
 		return "Error adding to list"
 	}
@@ -89,7 +128,7 @@ func AddItem(ID, item string) string {
 }
 
 func EditItem(ID string, pos int, item string) string {
-	l, err := retrieveListFromDisk(ID)
+	l, err := retrieve(ID)
 	if len(l.List) == 0 || err != nil {
 		return "List empty"
 	}
@@ -99,7 +138,7 @@ func EditItem(ID string, pos int, item string) string {
 	}
 
 	l.List[pos-1] = item
-	err = saveListToDisk(ID, *l)
+	_, err = save(ID, *l)
 	if err != nil {
 		return "Error edit list item"
 	}
@@ -107,7 +146,7 @@ func EditItem(ID string, pos int, item string) string {
 }
 
 func DeleteItem(ID string, pos int) string {
-	l, err := retrieveListFromDisk(ID)
+	l, err := retrieve(ID)
 	if len(l.List) == 0 || err != nil {
 		return "List empty"
 	}
@@ -118,7 +157,11 @@ func DeleteItem(ID string, pos int) string {
 
 	deletedItem := l.List[pos-1]
 	l.List = append(l.List[0:pos-1], l.List[pos:len(l.List)]...)
-	err = saveListToDisk(ID, *l)
+	if len(l.List) == 0 {
+		err = UnsetEnv(ID)
+	} else {
+		_, err = save(ID, *l)
+	}
 	if err != nil {
 		return "Error deleting item from list"
 	}
@@ -126,14 +169,12 @@ func DeleteItem(ID string, pos int) string {
 }
 
 func ClearItem(ID string) string {
-	l, err := retrieveListFromDisk(ID)
+	l, err := retrieve(ID)
 	if len(l.List) == 0 || err != nil {
 		return "List empty"
 	}
 
-	l.List = []string{}
-	l.Title = ""
-	err = saveListToDisk(ID, *l)
+	err = UnsetEnv(ID)
 	if err != nil {
 		return "Error clearing list item"
 	}
