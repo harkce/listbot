@@ -124,7 +124,7 @@ func AddItem(ID, item string) string {
 	if title == "" {
 		title = "list"
 	}
-	return fmt.Sprintf("Sukses menambahkan '%s' ke '%s'", item, title)
+	return fmt.Sprintf("Sukses menambahkan '%s' ke list", item)
 }
 
 func EditItem(ID string, pos int, item string) string {
