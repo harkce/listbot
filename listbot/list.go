@@ -89,11 +89,11 @@ func UnsetEnv(ID string) error {
 func LoadList(ID string) string {
 	l, err := retrieve(ID)
 	if len(l.List) == 0 || err != nil {
-		return "List empty"
+		return "List kosong"
 	}
 
 	if l.Title == "" {
-		l.Title = "Untitled list"
+		l.Title = "List tanpa judul"
 	}
 	listString := fmt.Sprintf("%s", l.Title)
 	for i, item := range l.List {
@@ -108,9 +108,9 @@ func SetTitle(ID, title string) string {
 	l.Title = title
 	_, err := save(ID, *l)
 	if err != nil {
-		return "Error rename list title"
+		return "Error ganti judul list"
 	}
-	return fmt.Sprintf("List title changed to %s", title)
+	return fmt.Sprintf("Judul list diganti jadi '%s'", title)
 }
 
 func AddItem(ID, item string) string {
@@ -118,23 +118,23 @@ func AddItem(ID, item string) string {
 	l.List = append(l.List, item)
 	_, err := save(ID, *l)
 	if err != nil {
-		return "Error adding to list"
+		return "Error menambahkan item ke list"
 	}
 	title := l.Title
 	if title == "" {
 		title = "list"
 	}
-	return fmt.Sprintf("Success add %s to %s", item, title)
+	return fmt.Sprintf("Sukses menambahkan '%s' ke '%s'", item, title)
 }
 
 func EditItem(ID string, pos int, item string) string {
 	l, err := retrieve(ID)
 	if len(l.List) == 0 || err != nil {
-		return "List empty"
+		return "List kosong"
 	}
 
 	if pos > len(l.List) {
-		return fmt.Sprintf("List just have %d item(s)", len(l.List))
+		return fmt.Sprintf("List hanya mempunyai %d item", len(l.List))
 	}
 
 	l.List[pos-1] = item
@@ -142,17 +142,17 @@ func EditItem(ID string, pos int, item string) string {
 	if err != nil {
 		return "Error edit list item"
 	}
-	return "Sucess edit item"
+	return fmt.Sprintf("Sukses edit item %d jadi '%s'", pos, item)
 }
 
 func DeleteItem(ID string, pos int) string {
 	l, err := retrieve(ID)
 	if len(l.List) == 0 || err != nil {
-		return "List empty"
+		return "List kosong"
 	}
 
 	if pos > len(l.List) {
-		return fmt.Sprintf("List just have %d item(s)", len(l.List))
+		return fmt.Sprintf("List hanya mempunyai %d item", len(l.List))
 	}
 
 	deletedItem := l.List[pos-1]
@@ -163,20 +163,20 @@ func DeleteItem(ID string, pos int) string {
 		_, err = save(ID, *l)
 	}
 	if err != nil {
-		return "Error deleting item from list"
+		return "Error delete item"
 	}
-	return fmt.Sprintf("Success remove %s from list", deletedItem)
+	return fmt.Sprintf("Sukses hapus '%s' dari list", deletedItem)
 }
 
 func ClearItem(ID string) string {
 	l, err := retrieve(ID)
 	if len(l.List) == 0 || err != nil {
-		return "List empty"
+		return "List kosong"
 	}
 
 	err = UnsetEnv(ID)
 	if err != nil {
-		return "Error clearing list item"
+		return "Error hapus list"
 	}
-	return "List empty"
+	return "List kosong"
 }
