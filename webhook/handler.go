@@ -113,14 +113,14 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			continue
 		}
 		if strings.HasPrefix(content, "/help") {
-			replyMessage = "Commands:\n" +
-				"/list - Show current list\n" +
-				"/title <title> - Set title of the list\n" +
-				"/add <item> - Add item to the current list\n" +
-				"/edit <item number> <item> - Edit selected item\n" +
-				"/delete <item number> - Delete an item\n" +
-				"/clear - Reset list\n" +
-				"/help - Show bot commands"
+			replyMessage = "Perintah:\n" +
+				"/list - Tampilkan list\n" +
+				"/title <title> - Ganti judul list\n" +
+				"/add <item> - Tambah item ke list\n" +
+				"/edit <nomor> <item> - Edit item di posisi <nomor>\n" +
+				"/delete <nomor> - Hapus item dari list\n" +
+				"/clear - Hapus semua list\n" +
+				"/help - Tampilkan perintah bot"
 			sendReply(replyToken, replyMessage)
 			continue
 		}
