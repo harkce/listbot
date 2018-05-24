@@ -57,6 +57,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 				"Kalo ada pertanyaan, kesulitan, atau saran, kamu bisa langsung hubungi yang bikin list bot 😃\n\n" +
 				"LINE: http://line.me/ti/p/~harkce"
 			sendReply(event.ReplyToken, replyMessage)
+			continue
 		}
 
 		message, ok := event.Message.(*linebot.TextMessage)
