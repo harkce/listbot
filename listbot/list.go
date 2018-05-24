@@ -32,6 +32,7 @@ func retrieve(ID string) (*List, error) {
 
 	if err = json.Unmarshal(raw, &l); err != nil {
 		log.Println("Error unmarshal:", err)
+		log.Println(string(raw))
 		return &l, err
 	}
 	return &l, nil
