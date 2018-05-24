@@ -37,8 +37,16 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			continue
 		}
 
+		var replyMessage string
+		var groupID string
+		if event.Source.Type == linebot.EventSourceTypeGroup {
+			groupID = event.Source.GroupID
+		} else if event.Source.Type == linebot.EventSourceTypeRoom {
+			groupID = event.Source.RoomID
+		}
+
 		if event.Type == linebot.EventTypeLeave {
-			listbot.UnsetEnv(event.Source.GroupID)
+			listbot.UnsetEnv(groupID)
 			continue
 		}
 
@@ -52,13 +60,6 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			continue
 		}
 
-		var replyMessage string
-		var groupID string
-		if event.Source.Type == linebot.EventSourceTypeGroup {
-			groupID = event.Source.GroupID
-		} else if event.Source.Type == linebot.EventSourceTypeRoom {
-			groupID = event.Source.RoomID
-		}
 		replyToken := event.ReplyToken
 		args := strings.Split(content, " ")
 		if strings.HasPrefix(content, "/list") {
