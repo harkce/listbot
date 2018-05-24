@@ -49,9 +49,9 @@ func save(ID string, l List) (*List, error) {
 	URL := fmt.Sprintf("%s/store/%s", os.Getenv("KV_HOST"), ID)
 	res, err := http.Post(URL, "application/json", bytes.NewBuffer(raw))
 	if err != nil {
-		log.Println(raw)
 		return &list, err
 	}
+	log.Println(raw)
 
 	raw, err = ioutil.ReadAll(res.Body)
 	if err != nil {
