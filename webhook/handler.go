@@ -20,7 +20,7 @@ func hookResp(w http.ResponseWriter) {
 }
 
 func unsupportedEvent(e *linebot.Event) bool {
-	return e.Type != linebot.EventTypeMessage && e.Type != linebot.EventTypeLeave && e.Source.Type != linebot.EventSourceTypeGroup
+	return e.Type != linebot.EventTypeMessage && e.Type != linebot.EventTypeLeave && (e.Source.Type != linebot.EventSourceTypeGroup || e.Source.Type != linebot.EventSourceTypeRoom)
 }
 
 func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -53,7 +53,12 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		}
 
 		var replyMessage string
-		groupID := event.Source.GroupID
+		var groupID string
+		if event.Source.Type == linebot.EventSourceTypeGroup {
+			groupID = event.Source.GroupID
+		} else if event.Source.Type == linebot.EventSourceTypeRoom {
+			groupID = event.Source.RoomID
+		}
 		replyToken := event.ReplyToken
 		args := strings.Split(content, " ")
 		if strings.HasPrefix(content, "/list") {
