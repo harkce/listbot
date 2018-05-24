@@ -51,7 +51,7 @@ func save(ID string, l List) (*List, error) {
 	if err != nil {
 		return &list, err
 	}
-	log.Println(raw)
+	log.Println(string(raw))
 
 	raw, err = ioutil.ReadAll(res.Body)
 	if err != nil {
