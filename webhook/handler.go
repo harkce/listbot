@@ -50,6 +50,14 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			continue
 		}
 
+		if event.Source.Type == linebot.EventSourceTypeUser {
+			replyMessage = "Halo!\n" +
+				"List bot ngga bisa chat personal sama kamu, maaf yaa\n" +
+				"Kalo ada pertanyaan, kesulitan, atau saran, kamu bisa langsung hubungi yang bikin list bot\n\n" +
+				"LINE: http://line.me/ti/p/~harkce"
+			sendReply(event.ReplyToken, replyMessage)
+		}
+
 		message, ok := event.Message.(*linebot.TextMessage)
 		if !ok {
 			continue
