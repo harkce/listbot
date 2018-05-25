@@ -11,6 +11,7 @@ import (
 )
 
 type List struct {
+	GroupID  string    `json:"group_id"`
 	Title    string    `json:"title"`
 	List     []string  `json:"list,omitempty"`
 	Multiple bool      `json:"multiple"`
@@ -22,8 +23,8 @@ type Element struct {
 	List  []string `json:"list"`
 }
 
-func retrieve(ID string) (*List, error) {
-	var l List
+func Retrieve(ID string) (*List, error) {
+	l := List{List: make([]string, 0), Element: make([]Element, 0), GroupID: ID}
 
 	res, err := http.Get(fmt.Sprintf("%s/get/%s", os.Getenv("KV_HOST"), ID))
 	if err != nil {
@@ -58,7 +59,6 @@ func save(ID string, l List) (*List, error) {
 	if err != nil {
 		return &list, err
 	}
-	log.Println(string(raw))
 
 	raw, err = ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -95,9 +95,8 @@ func UnsetEnv(ID string) error {
 	return nil
 }
 
-func LoadList(ID string) string {
-	l, err := retrieve(ID)
-	if len(l.List) == 0 || err != nil {
+func (l *List) LoadList(ID string) string {
+	if len(l.List) == 0 {
 		return "List kosong"
 	}
 
@@ -111,20 +110,18 @@ func LoadList(ID string) string {
 	return listString
 }
 
-func SetTitle(ID, title string) string {
-	l, _ := retrieve(ID)
+func (l *List) SetTitle(title string) string {
 	l.Title = title
-	_, err := save(ID, *l)
+	_, err := save(l.GroupID, *l)
 	if err != nil {
 		return "Error ganti judul list"
 	}
 	return fmt.Sprintf("Judul list diganti jadi '%s'", title)
 }
 
-func AddItem(ID, item string) string {
-	l, _ := retrieve(ID)
+func (l *List) AddItem(item string) string {
 	l.List = append(l.List, item)
-	_, err := save(ID, *l)
+	_, err := save(l.GroupID, *l)
 	if err != nil {
 		return "Error menambahkan item ke list"
 	}
@@ -135,9 +132,8 @@ func AddItem(ID, item string) string {
 	return fmt.Sprintf("Sukses menambahkan '%s' ke %s", item, title)
 }
 
-func EditItem(ID string, pos int, item string) string {
-	l, err := retrieve(ID)
-	if len(l.List) == 0 || err != nil {
+func (l *List) EditItem(pos int, item string) string {
+	if len(l.List) == 0 {
 		return "List kosong"
 	}
 
@@ -146,16 +142,15 @@ func EditItem(ID string, pos int, item string) string {
 	}
 
 	l.List[pos-1] = item
-	_, err = save(ID, *l)
+	_, err := save(l.GroupID, *l)
 	if err != nil {
 		return "Error edit list item"
 	}
 	return fmt.Sprintf("Sukses edit item %d jadi '%s'", pos, item)
 }
 
-func DeleteItem(ID string, pos int) string {
-	l, err := retrieve(ID)
-	if len(l.List) == 0 || err != nil {
+func (l *List) DeleteItem(pos int) string {
+	if len(l.List) == 0 {
 		return "List kosong"
 	}
 
@@ -165,24 +160,22 @@ func DeleteItem(ID string, pos int) string {
 
 	deletedItem := l.List[pos-1]
 	l.List = append(l.List[0:pos-1], l.List[pos:len(l.List)]...)
-	if len(l.List) == 0 {
-		err = UnsetEnv(ID)
-	} else {
-		_, err = save(ID, *l)
-	}
+	var err error
+	_, err = save(l.GroupID, *l)
 	if err != nil {
 		return "Error hapus item"
 	}
 	return fmt.Sprintf("Sukses hapus '%s' dari list", deletedItem)
 }
 
-func ClearItem(ID string) string {
-	l, err := retrieve(ID)
-	if len(l.List) == 0 || err != nil {
+func (l *List) ClearItem() string {
+	if len(l.List) == 0 {
 		return "List kosong"
 	}
 
-	err = UnsetEnv(ID)
+	l.List = make([]string, 0)
+	l.Title = ""
+	_, err := save(l.GroupID, *l)
 	if err != nil {
 		return "Error hapus list"
 	}

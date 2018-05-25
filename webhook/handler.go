@@ -14,6 +14,16 @@ import (
 
 type Handler struct{}
 
+var allowedPrefix = map[string]bool{
+	"/list":   true,
+	"/title":  true,
+	"/add":    true,
+	"/edit":   true,
+	"/delete": true,
+	"/clear":  true,
+	"/help":   true,
+}
+
 func hookResp(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "OK")
@@ -45,7 +55,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			groupID = event.Source.RoomID
 		}
 
-		if event.Type == linebot.EventTypeLeave {
+		if event.Type == linebot.EventTypeLeave && event.Source.Type == linebot.EventSourceTypeRoom {
 			listbot.UnsetEnv(groupID)
 			continue
 		}
@@ -72,8 +82,14 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 
 		replyToken := event.ReplyToken
 		args := strings.Split(content, " ")
+
+		var l *listbot.List
+		if allowedPrefix[args[0]] {
+			l, _ = listbot.Retrieve(groupID)
+		}
+
 		if strings.HasPrefix(content, "/list") {
-			replyMessage = listbot.LoadList(groupID)
+			replyMessage = l.LoadList(groupID)
 			sendReply(replyToken, replyMessage)
 			continue
 		}
@@ -81,7 +97,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if len(args) < 2 {
 				replyMessage = ""
 			} else {
-				replyMessage = listbot.SetTitle(groupID, strings.Join(args[1:], " "))
+				replyMessage = l.SetTitle(strings.Join(args[1:], " "))
 			}
 			sendReply(replyToken, replyMessage)
 			continue
@@ -90,7 +106,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if len(args) < 2 {
 				replyMessage = ""
 			} else {
-				replyMessage = listbot.AddItem(groupID, strings.Join(args[1:], " "))
+				replyMessage = l.AddItem(strings.Join(args[1:], " "))
 			}
 			sendReply(replyToken, replyMessage)
 			continue
@@ -103,7 +119,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 				if err != nil {
 					replyMessage = ""
 				} else {
-					replyMessage = listbot.EditItem(groupID, pos, strings.Join(args[2:], " "))
+					replyMessage = l.EditItem(pos, strings.Join(args[2:], " "))
 				}
 			}
 			sendReply(replyToken, replyMessage)
@@ -117,14 +133,14 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 				if err != nil {
 					replyMessage = ""
 				} else {
-					replyMessage = listbot.DeleteItem(groupID, pos)
+					replyMessage = l.DeleteItem(pos)
 				}
 			}
 			sendReply(replyToken, replyMessage)
 			continue
 		}
 		if strings.HasPrefix(content, "/clear") {
-			replyMessage = listbot.ClearItem(groupID)
+			replyMessage = l.ClearItem()
 			sendReply(replyToken, replyMessage)
 			continue
 		}
