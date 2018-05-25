@@ -83,6 +83,19 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		replyToken := event.ReplyToken
 		args := strings.Split(content, " ")
 
+		if strings.HasPrefix(content, "/help") {
+			replyMessage = "Perintah:\n" +
+				"/list - Tampilkan list\n" +
+				"/title <title> - Ganti judul list\n" +
+				"/add <item> - Tambah item ke list\n" +
+				"/edit <nomor> <item> - Edit item di posisi <nomor>\n" +
+				"/delete <nomor> - Hapus item dari list\n" +
+				"/clear - Hapus semua list\n" +
+				"/help - Tampilkan perintah bot"
+			sendReply(replyToken, replyMessage)
+			continue
+		}
+
 		var l *listbot.List
 		if allowedPrefix[args[0]] {
 			l, _ = listbot.Retrieve(groupID)
@@ -141,18 +154,6 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		}
 		if strings.HasPrefix(content, "/clear") {
 			replyMessage = l.ClearItem()
-			sendReply(replyToken, replyMessage)
-			continue
-		}
-		if strings.HasPrefix(content, "/help") {
-			replyMessage = "Perintah:\n" +
-				"/list - Tampilkan list\n" +
-				"/title <title> - Ganti judul list\n" +
-				"/add <item> - Tambah item ke list\n" +
-				"/edit <nomor> <item> - Edit item di posisi <nomor>\n" +
-				"/delete <nomor> - Hapus item dari list\n" +
-				"/clear - Hapus semua list\n" +
-				"/help - Tampilkan perintah bot"
 			sendReply(replyToken, replyMessage)
 			continue
 		}
