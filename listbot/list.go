@@ -11,6 +11,13 @@ import (
 )
 
 type List struct {
+	Title    string    `json:"title"`
+	List     []string  `json:"list,omitempty"`
+	Multiple bool      `json:"multiple"`
+	Element  []Element `json:"element,omitempty"`
+}
+
+type Element struct {
 	Title string   `json:"title"`
 	List  []string `json:"list"`
 }
@@ -99,8 +106,7 @@ func LoadList(ID string) string {
 	}
 	listString := fmt.Sprintf("%s", l.Title)
 	for i, item := range l.List {
-		listString += "\n"
-		listString = fmt.Sprintf("%s%d. %s", listString, i+1, item)
+		listString = fmt.Sprintf("%s\n%d. %s", listString, i+1, item)
 	}
 	return listString
 }
@@ -126,7 +132,7 @@ func AddItem(ID, item string) string {
 	if title == "" {
 		title = "list"
 	}
-	return fmt.Sprintf("Sukses menambahkan '%s' ke list", item)
+	return fmt.Sprintf("Sukses menambahkan '%s' ke %s", item, l.Title)
 }
 
 func EditItem(ID string, pos int, item string) string {
@@ -165,7 +171,7 @@ func DeleteItem(ID string, pos int) string {
 		_, err = save(ID, *l)
 	}
 	if err != nil {
-		return "Error delete item"
+		return "Error hapus item"
 	}
 	return fmt.Sprintf("Sukses hapus '%s' dari list", deletedItem)
 }
