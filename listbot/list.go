@@ -137,7 +137,7 @@ func (l *List) EditItem(pos int, item string) string {
 		return "List kosong"
 	}
 
-	if pos > len(l.List) {
+	if pos > len(l.List) || pos < 1 {
 		return fmt.Sprintf("List hanya mempunyai %d item", len(l.List))
 	}
 
@@ -154,7 +154,7 @@ func (l *List) DeleteItem(pos int) string {
 		return "List kosong"
 	}
 
-	if pos > len(l.List) {
+	if pos > len(l.List) || pos < 1 {
 		return fmt.Sprintf("List hanya mempunyai %d item", len(l.List))
 	}
 
