@@ -15,14 +15,45 @@ import (
 type Handler struct{}
 
 var allowedPrefix = map[string]bool{
-	"/list":   true,
-	"/title":  true,
-	"/add":    true,
-	"/edit":   true,
-	"/delete": true,
-	"/clear":  true,
-	"/help":   true,
+	"/list":       true,
+	"/title":      true,
+	"/add":        true,
+	"/edit":       true,
+	"/delete":     true,
+	"/clear":      true,
+	"/help":       true,
+	"/multiple":   true,
+	"/newlist":    true,
+	"/removelist": true,
 }
+
+const personalReply = "Halo! Makasih udah chat 😉\n" +
+	"Saat ini, list bot ngga bisa chat personal sama kamu, maaf yaa 🙏\n\n" +
+	"Kamu harus invite list bot ke grup/multi chat biar bisa nambahin list.\n\n" +
+	"Kalo ada pertanyaan, kesulitan, atau saran, kamu bisa langsung hubungi adminnya list bot 😃\n\n" +
+	"LINE: http://line.me/ti/p/~harkce"
+
+const singleHelp = "Perintah:\n" +
+	"/list - Tampilkan item list\n\n" +
+	"/title <judul> - Ganti judul list\n\n" +
+	"/add <item> - Tambah item ke list\n\n" +
+	"/edit <nomor> <item> - Edit item di posisi <nomor>\n\n" +
+	"/delete <nomor> - Hapus item dari list\n\n" +
+	"/clear - Hapus semua item dari list\n\n" +
+	"/multiple on - Mengaktifkan multiple list\n\n" +
+	"/help - Tampilkan perintah bot"
+
+const multipleHelp = "Perintah:\n" +
+	"/newlist <judul> - Buat list baru\n\n" +
+	"/list - Tampilkan semua list\n\n" +
+	"/list <nomorlist> - Tampilkan item di list <nomorlist>\n\n" +
+	"/title <nomorlist> <judul> - Ganti judul list\n\n" +
+	"/add <nomorlist> <item> - Tambah item ke list <nomorlist>\n\n" +
+	"/edit <nomorlist> <nomoritem> <item> - Edit item list\n\n" +
+	"/delete <nomorlist> <nomoritem> - Hapus item dari list <nomorlist>\n\n" +
+	"/removelist <nomorlist> - Hapus list nomor <nomorlist>\n\n" +
+	"/multiple off - Menonaktifkan multiple list\n\n" +
+	"/help - Tampilkan perintah bot"
 
 func hookResp(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusOK)
@@ -61,11 +92,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		}
 
 		if event.Source.Type == linebot.EventSourceTypeUser {
-			replyMessage = "Halo! Makasih udah chat 😉\n" +
-				"Saat ini, list bot ngga bisa chat personal sama kamu, maaf yaa 🙏\n\n" +
-				"Kamu harus invite list bot ke grup/multi chat biar bisa nambahin list.\n\n" +
-				"Kalo ada pertanyaan, kesulitan, atau saran, kamu bisa langsung hubungi adminnya list bot 😃\n\n" +
-				"LINE: http://line.me/ti/p/~harkce"
+			replyMessage = personalReply
 			sendReply(event.ReplyToken, replyMessage)
 			continue
 		}
@@ -83,79 +110,187 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		replyToken := event.ReplyToken
 		args := strings.Split(content, " ")
 
-		if strings.HasPrefix(content, "/help") {
-			replyMessage = "Perintah:\n" +
-				"/list - Tampilkan list\n" +
-				"/title <title> - Ganti judul list\n" +
-				"/add <item> - Tambah item ke list\n" +
-				"/edit <nomor> <item> - Edit item di posisi <nomor>\n" +
-				"/delete <nomor> - Hapus item dari list\n" +
-				"/clear - Hapus semua list\n" +
-				"/help - Tampilkan perintah bot"
-			sendReply(replyToken, replyMessage)
-			continue
-		}
-
 		var l *listbot.List
 		if allowedPrefix[args[0]] {
 			l, _ = listbot.Retrieve(groupID)
 		}
 
-		if strings.HasPrefix(content, "/list") {
-			replyMessage = l.LoadList(groupID)
-			sendReply(replyToken, replyMessage)
-			continue
-		}
-		if strings.HasPrefix(content, "/title ") {
-			if len(args) < 2 {
-				replyMessage = ""
+		if strings.HasPrefix(content, "/multiple") {
+			replyMessage = l.SetMultiple(args[1])
+			if l.Multiple {
+				replyMessage += "\n" + "Gunakan '/multiple off' untuk menonaktifkan multiple list"
 			} else {
-				replyMessage = l.SetTitle(strings.Join(args[1:], " "))
+				replyMessage += "\n" + "Gunakan '/multiple on' untuk mengaktifkan multiple list"
 			}
 			sendReply(replyToken, replyMessage)
 			continue
 		}
-		if strings.HasPrefix(content, "/add ") {
-			if len(args) < 2 {
-				replyMessage = ""
-			} else {
-				replyMessage = l.AddItem(strings.Join(args[1:], " "))
-			}
-			sendReply(replyToken, replyMessage)
-			continue
-		}
-		if strings.HasPrefix(content, "/edit ") {
-			if len(args) < 3 {
-				replyMessage = ""
-			} else {
-				pos, err := strconv.Atoi(args[1])
-				if err != nil {
+
+		if l.Multiple {
+			if strings.HasPrefix(content, "/newlist") {
+				if len(args) < 2 {
 					replyMessage = ""
 				} else {
-					replyMessage = l.EditItem(pos, strings.Join(args[2:], " "))
+					replyMessage = l.CreateList(strings.Join(args[1:], " "))
 				}
+				sendReply(replyToken, replyMessage)
+				continue
 			}
-			sendReply(replyToken, replyMessage)
-			continue
-		}
-		if strings.HasPrefix(content, "/delete ") {
-			if len(args) < 2 {
-				replyMessage = ""
-			} else {
-				pos, err := strconv.Atoi(args[1])
-				if err != nil {
+			if strings.HasPrefix(content, "/list") {
+				var pos int
+				var err error
+				if len(args) > 1 {
+					pos, err = strconv.Atoi(args[1])
+					if err != nil {
+						replyMessage = l.LoadMultiple()
+					} else {
+						replyMessage = l.LoadElement(pos)
+					}
+				} else {
+					replyMessage = l.LoadMultiple()
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/title") {
+				if len(args) < 3 {
 					replyMessage = ""
 				} else {
-					replyMessage = l.DeleteItem(pos)
+					pos, err := strconv.Atoi(args[1])
+					if err != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.SetElementTitle(pos, strings.Join(args[2:], " "))
+					}
 				}
+				sendReply(replyToken, replyMessage)
+				continue
 			}
-			sendReply(replyToken, replyMessage)
-			continue
-		}
-		if strings.HasPrefix(content, "/clear") {
-			replyMessage = l.ClearItem()
-			sendReply(replyToken, replyMessage)
-			continue
+			if strings.HasPrefix(content, "/add") {
+				if len(args) < 3 {
+					replyMessage = ""
+				} else {
+					pos, err := strconv.Atoi(args[1])
+					if err != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.AddElementItem(pos, strings.Join(args[2:], " "))
+					}
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/edit") {
+				if len(args) < 4 {
+					replyMessage = ""
+				} else {
+					listpos, err1 := strconv.Atoi(args[1])
+					pos, err2 := strconv.Atoi(args[2])
+					if err1 != nil || err2 != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.EditElementItem(listpos, pos, strings.Join(args[3:], " "))
+					}
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/delete") {
+				if len(args) < 3 {
+					replyMessage = ""
+				} else {
+					listpos, err1 := strconv.Atoi(args[1])
+					pos, err2 := strconv.Atoi(args[2])
+					if err1 != nil || err2 != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.DeleteElementItem(listpos, pos)
+					}
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/removelist") {
+				if len(args) < 2 {
+					replyMessage = ""
+				} else {
+					pos, err := strconv.Atoi(args[1])
+					if err != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.RemoveList(pos)
+					}
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/help") {
+				replyMessage = multipleHelp
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+		} else {
+			if strings.HasPrefix(content, "/list") {
+				replyMessage = l.LoadList(groupID)
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/title ") {
+				if len(args) < 2 {
+					replyMessage = ""
+				} else {
+					replyMessage = l.SetTitle(strings.Join(args[1:], " "))
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/add ") {
+				if len(args) < 2 {
+					replyMessage = ""
+				} else {
+					replyMessage = l.AddItem(strings.Join(args[1:], " "))
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/edit ") {
+				if len(args) < 3 {
+					replyMessage = ""
+				} else {
+					pos, err := strconv.Atoi(args[1])
+					if err != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.EditItem(pos, strings.Join(args[2:], " "))
+					}
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/delete ") {
+				if len(args) < 2 {
+					replyMessage = ""
+				} else {
+					pos, err := strconv.Atoi(args[1])
+					if err != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.DeleteItem(pos)
+					}
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/clear") {
+				replyMessage = l.ClearItem()
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/help") {
+				replyMessage = singleHelp
+				sendReply(replyToken, replyMessage)
+				continue
+			}
 		}
 	}
 
