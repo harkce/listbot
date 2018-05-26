@@ -23,6 +23,8 @@ type Element struct {
 	List  []string `json:"list"`
 }
 
+const newItemHelper = "\nGunakan 'add <item>' untuk menambahkan item ke list"
+
 func Retrieve(ID string) (*List, error) {
 	l := List{List: make([]string, 0), Element: make([]Element, 0), GroupID: ID}
 
@@ -97,7 +99,7 @@ func UnsetEnv(ID string) error {
 
 func (l *List) LoadList(ID string) string {
 	if len(l.List) == 0 {
-		return "List kosong"
+		return "List kosong" + newItemHelper
 	}
 
 	if l.Title == "" {
@@ -134,7 +136,7 @@ func (l *List) AddItem(item string) string {
 
 func (l *List) EditItem(pos int, item string) string {
 	if len(l.List) == 0 {
-		return "List kosong"
+		return "List kosong" + newItemHelper
 	}
 
 	if pos > len(l.List) || pos < 1 {
@@ -151,7 +153,7 @@ func (l *List) EditItem(pos int, item string) string {
 
 func (l *List) DeleteItem(pos int) string {
 	if len(l.List) == 0 {
-		return "List kosong"
+		return "List kosong" + newItemHelper
 	}
 
 	if pos > len(l.List) || pos < 1 {
@@ -170,7 +172,7 @@ func (l *List) DeleteItem(pos int) string {
 
 func (l *List) ClearItem() string {
 	if len(l.List) == 0 {
-		return "List kosong"
+		return "List kosong" + newItemHelper
 	}
 
 	l.List = make([]string, 0)
@@ -179,5 +181,5 @@ func (l *List) ClearItem() string {
 	if err != nil {
 		return "Error hapus list"
 	}
-	return "List kosong"
+	return "List kosong" + newItemHelper
 }
