@@ -23,7 +23,7 @@ type Element struct {
 	List  []string `json:"list"`
 }
 
-const newItemHelper = "\nGunakan 'add <item>' untuk menambahkan item ke list"
+const newItemHelper = "\nGunakan '/add <item>' untuk menambahkan item ke list"
 
 func Retrieve(ID string) (*List, error) {
 	l := List{List: make([]string, 0), Element: make([]Element, 0), GroupID: ID}
