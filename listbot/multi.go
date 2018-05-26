@@ -4,7 +4,7 @@ import "fmt"
 
 const (
 	newListHelper  = "\nGunakan '/newlist <judullist>' untuk membuat list"
-	showListHelper = "\n\nGunakan 'list <nomorlist>' untuk melihat isi list"
+	showListHelper = "\n\nGunakan '/list <nomorlist>' untuk melihat isi list"
 )
 
 func (l *List) SetMultiple(option string) string {
