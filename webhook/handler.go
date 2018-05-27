@@ -19,6 +19,9 @@ var allowedPrefix = map[string]bool{
 	"/title":      true,
 	"/add":        true,
 	"/edit":       true,
+	"/check":      true,
+	"/cross":      true,
+	"/unmark":     true,
 	"/delete":     true,
 	"/clear":      true,
 	"/help":       true,
@@ -38,6 +41,9 @@ const singleHelp = "Perintah:\n" +
 	"/title <judul> - Ganti judul list\n\n" +
 	"/add <item> - Tambah item ke list\n\n" +
 	"/edit <nomor> <item> - Edit item di posisi <nomor>\n\n" +
+	"/check <nomor> - Menandai item dengan ✓\n\n" +
+	"/cross <nomor> - Menandai item dengan ✗\n\n" +
+	"/unmark <nomor> - Menghilangkan tanda pada item\n\n" +
 	"/delete <nomor> - Hapus item dari list\n\n" +
 	"/clear - Hapus semua item dari list\n\n" +
 	"/multiple on - Mengaktifkan multiple list\n\n" +
@@ -50,6 +56,9 @@ const multipleHelp = "Perintah:\n" +
 	"/title <nomorlist> <judul> - Ganti judul list\n\n" +
 	"/add <nomorlist> <item> - Tambah item ke list <nomorlist>\n\n" +
 	"/edit <nomorlist> <nomoritem> <item> - Edit item list\n\n" +
+	"/check <nomorlist> <nomoritem> - Menandai item dengan ✓\n\n" +
+	"/cross <nomorlist> <nomoritem> - Menandai item dengan ✗\n\n" +
+	"/unmark <nomorlist> <nomoritem> - Menghilangkan tanda pada item\n\n" +
 	"/delete <nomorlist> <nomoritem> - Hapus item dari list <nomorlist>\n\n" +
 	"/removelist <nomorlist> - Hapus list nomor <nomorlist>\n\n" +
 	"/multiple off - Menonaktifkan multiple list\n\n" +
@@ -195,6 +204,48 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 				sendReply(replyToken, replyMessage)
 				continue
 			}
+			if strings.HasPrefix(content, "/check") {
+				if len(args) < 3 {
+					replyMessage = ""
+				} else {
+					listpos, err1 := strconv.Atoi(args[1])
+					pos, err2 := strconv.Atoi(args[2])
+					if err1 != nil || err2 != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.CheckElementItem(listpos, pos)
+					}
+				}
+				sendReply(replyToken, replyMessage)
+			}
+			if strings.HasPrefix(content, "/cross") {
+				if len(args) < 3 {
+					replyMessage = ""
+				} else {
+					listpos, err1 := strconv.Atoi(args[1])
+					pos, err2 := strconv.Atoi(args[2])
+					if err1 != nil || err2 != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.CrossElementItem(listpos, pos)
+					}
+				}
+				sendReply(replyToken, replyMessage)
+			}
+			if strings.HasPrefix(content, "/unmark") {
+				if len(args) < 3 {
+					replyMessage = ""
+				} else {
+					listpos, err1 := strconv.Atoi(args[1])
+					pos, err2 := strconv.Atoi(args[2])
+					if err1 != nil || err2 != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.UncheckElementItem(listpos, pos)
+					}
+				}
+				sendReply(replyToken, replyMessage)
+			}
 			if strings.HasPrefix(content, "/delete") {
 				if len(args) < 3 {
 					replyMessage = ""
@@ -262,6 +313,48 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 						replyMessage = ""
 					} else {
 						replyMessage = l.EditItem(pos, strings.Join(args[2:], " "))
+					}
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/check ") {
+				if len(args) < 2 {
+					replyMessage = ""
+				} else {
+					pos, err := strconv.Atoi(args[1])
+					if err != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.CheckItem(pos)
+					}
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/cross ") {
+				if len(args) < 2 {
+					replyMessage = ""
+				} else {
+					pos, err := strconv.Atoi(args[1])
+					if err != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.CrossItem(pos)
+					}
+				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/unmark ") {
+				if len(args) < 2 {
+					replyMessage = ""
+				} else {
+					pos, err := strconv.Atoi(args[1])
+					if err != nil {
+						replyMessage = ""
+					} else {
+						replyMessage = l.UncheckItem(pos)
 					}
 				}
 				sendReply(replyToken, replyMessage)

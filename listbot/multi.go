@@ -149,6 +149,78 @@ func (l *List) EditElementItem(listpos int, pos int, item string) string {
 	return fmt.Sprintf("Sukses edit item %d di list%s jadi '%s'", pos, e.Title, item)
 }
 
+func (l *List) UncheckElementItem(listpos int, pos int) string {
+	if len(l.Element) == 0 {
+		return "List kosong" + newListHelper
+	}
+
+	if listpos > len(l.Element) || listpos < 1 {
+		return fmt.Sprintf("Hanya ada %d list di grup ini", len(l.Element))
+	}
+
+	e := &l.Element[listpos-1]
+	if pos > len(e.List) || pos < 1 {
+		return fmt.Sprintf("Hanya ada %d item di list nomor %d", len(e.List), listpos)
+	}
+	e.List[pos-1] = removeMark(e.List[pos-1])
+	_, err := save(l.GroupID, *l)
+	if err != nil {
+		return "Error edit list item"
+	}
+	if e.Title != "" {
+		e.Title = " " + e.Title
+	}
+	return fmt.Sprintf("Tanda item %d di list%s dihilangkan", pos, e.Title)
+}
+
+func (l *List) CheckElementItem(listpos int, pos int) string {
+	if len(l.Element) == 0 {
+		return "List kosong" + newListHelper
+	}
+
+	if listpos > len(l.Element) || listpos < 1 {
+		return fmt.Sprintf("Hanya ada %d list di grup ini", len(l.Element))
+	}
+
+	e := &l.Element[listpos-1]
+	if pos > len(e.List) || pos < 1 {
+		return fmt.Sprintf("Hanya ada %d item di list nomor %d", len(e.List), listpos)
+	}
+	e.List[pos-1] = "✓ " + removeMark(e.List[pos-1])
+	_, err := save(l.GroupID, *l)
+	if err != nil {
+		return "Error edit list item"
+	}
+	if e.Title != "" {
+		e.Title = " " + e.Title
+	}
+	return fmt.Sprintf("Item %d di list%s ditandai ✓", pos, e.Title)
+}
+
+func (l *List) CrossElementItem(listpos int, pos int) string {
+	if len(l.Element) == 0 {
+		return "List kosong" + newListHelper
+	}
+
+	if listpos > len(l.Element) || listpos < 1 {
+		return fmt.Sprintf("Hanya ada %d list di grup ini", len(l.Element))
+	}
+
+	e := &l.Element[listpos-1]
+	if pos > len(e.List) || pos < 1 {
+		return fmt.Sprintf("Hanya ada %d item di list nomor %d", len(e.List), listpos)
+	}
+	e.List[pos-1] = "✗ " + removeMark(e.List[pos-1])
+	_, err := save(l.GroupID, *l)
+	if err != nil {
+		return "Error edit list item"
+	}
+	if e.Title != "" {
+		e.Title = " " + e.Title
+	}
+	return fmt.Sprintf("Item %d di list%s ditandai ✗", pos, e.Title)
+}
+
 func (l *List) DeleteElementItem(listpos int, pos int) string {
 	if len(l.Element) == 0 {
 		return "List kosong" + newListHelper

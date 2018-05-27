@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type List struct {
@@ -97,6 +98,14 @@ func UnsetEnv(ID string) error {
 	return nil
 }
 
+func removeMark(item string) string {
+	if strings.HasPrefix(item, "✓ ") || strings.HasPrefix(item, "✗ ") {
+		item = strings.TrimPrefix(item, "✓ ")
+		item = strings.TrimPrefix(item, "✗ ")
+	}
+	return item
+}
+
 func (l *List) LoadList(ID string) string {
 	if len(l.List) == 0 {
 		return "List kosong" + newItemHelper
@@ -149,6 +158,57 @@ func (l *List) EditItem(pos int, item string) string {
 		return "Error edit list item"
 	}
 	return fmt.Sprintf("Sukses edit item %d jadi '%s'", pos, item)
+}
+
+func (l *List) UncheckItem(pos int) string {
+	if len(l.List) == 0 {
+		return "List kosong" + newItemHelper
+	}
+
+	if pos > len(l.List) || pos < 1 {
+		return fmt.Sprintf("List hanya mempunyai %d item", len(l.List))
+	}
+
+	l.List[pos-1] = removeMark(l.List[pos-1])
+	_, err := save(l.GroupID, *l)
+	if err != nil {
+		return "Error uncheck item"
+	}
+	return fmt.Sprintf("Tanda item %d dihilangkan", pos)
+}
+
+func (l *List) CheckItem(pos int) string {
+	if len(l.List) == 0 {
+		return "List kosong" + newItemHelper
+	}
+
+	if pos > len(l.List) || pos < 1 {
+		return fmt.Sprintf("List hanya mempunyai %d item", len(l.List))
+	}
+
+	l.List[pos-1] = "✓ " + removeMark(l.List[pos-1])
+	_, err := save(l.GroupID, *l)
+	if err != nil {
+		return "Error uncheck item"
+	}
+	return fmt.Sprintf("Item %d ditandai ✓", pos)
+}
+
+func (l *List) CrossItem(pos int) string {
+	if len(l.List) == 0 {
+		return "List kosong" + newItemHelper
+	}
+
+	if pos > len(l.List) || pos < 1 {
+		return fmt.Sprintf("List hanya mempunyai %d item", len(l.List))
+	}
+
+	l.List[pos-1] = "✗ " + removeMark(l.List[pos-1])
+	_, err := save(l.GroupID, *l)
+	if err != nil {
+		return "Error uncheck item"
+	}
+	return fmt.Sprintf("Item %d ditandai ✗", pos)
 }
 
 func (l *List) DeleteItem(pos int) string {
