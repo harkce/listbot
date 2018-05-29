@@ -43,7 +43,7 @@ const (
 		"Kalo mau tau aku bisa ngapain aja, tinggal kirim:\n/help\n\n" +
 		"Mudah-mudahan aku bisa bermanfaat buat kalian 🙏"
 
-	singleHelp = "Perintah:\n" +
+	singleHelp = "Perintah (single list):\n" +
 		"/list - Tampilkan item list\n\n" +
 		"/title <judul> - Ganti judul list\n\n" +
 		"/add <item> - Tambah item ke list\n\n" +
@@ -56,7 +56,7 @@ const (
 		"/multiple on - Mengaktifkan multiple list\nSaat pertama kali multiple list aktif, list yang ada akan disalin ke multiple list\n\n" +
 		"/help - Tampilkan perintah bot"
 
-	multipleHelp = "Perintah:\n" +
+	multipleHelp = "Perintah (multiple list):\n" +
 		"/newlist <judul> - Buat list baru\n\n" +
 		"/list - Tampilkan semua list\n\n" +
 		"/list <nomorlist> - Tampilkan item di list <nomorlist>\n\n" +
