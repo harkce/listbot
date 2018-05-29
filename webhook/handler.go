@@ -141,9 +141,9 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		if strings.HasPrefix(content, "/multiple") {
 			replyMessage = l.SetMultiple(args[1])
 			if l.Multiple {
-				replyMessage += "\n" + "Gunakan '/multiple off' untuk menonaktifkan multiple list"
+				replyMessage += "\n" + "Gunakan '/multiple off' untuk menonaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada multiple list"
 			} else {
-				replyMessage += "\n" + "Gunakan '/multiple on' untuk mengaktifkan multiple list"
+				replyMessage += "\n" + "Gunakan '/multiple on' untuk mengaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada single list"
 			}
 			sendReply(replyToken, replyMessage)
 			continue
