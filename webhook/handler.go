@@ -153,6 +153,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/newlist") {
 				if len(args) < 2 {
 					replyMessage = ""
+					continue
 				} else {
 					replyMessage = l.CreateList(strings.Join(args[1:], " "))
 				}
@@ -178,6 +179,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/title") {
 				if len(args) < 3 {
 					replyMessage = ""
+					continue
 				} else {
 					pos, err := strconv.Atoi(args[1])
 					if err != nil {
@@ -192,10 +194,12 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/add") {
 				if len(args) < 3 {
 					replyMessage = ""
+					continue
 				} else {
 					pos, err := strconv.Atoi(args[1])
 					if err != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.AddElementItem(pos, strings.Join(args[2:], " "))
 					}
@@ -206,11 +210,13 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/edit") {
 				if len(args) < 4 {
 					replyMessage = ""
+					continue
 				} else {
 					listpos, err1 := strconv.Atoi(args[1])
 					pos, err2 := strconv.Atoi(args[2])
 					if err1 != nil || err2 != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.EditElementItem(listpos, pos, strings.Join(args[3:], " "))
 					}
@@ -221,11 +227,13 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/check") {
 				if len(args) < 3 {
 					replyMessage = ""
+					continue
 				} else {
 					listpos, err1 := strconv.Atoi(args[1])
 					pos, err2 := strconv.Atoi(args[2])
 					if err1 != nil || err2 != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.CheckElementItem(listpos, pos)
 					}
@@ -235,11 +243,13 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/cross") {
 				if len(args) < 3 {
 					replyMessage = ""
+					continue
 				} else {
 					listpos, err1 := strconv.Atoi(args[1])
 					pos, err2 := strconv.Atoi(args[2])
 					if err1 != nil || err2 != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.CrossElementItem(listpos, pos)
 					}
@@ -249,11 +259,13 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/unmark") {
 				if len(args) < 3 {
 					replyMessage = ""
+					continue
 				} else {
 					listpos, err1 := strconv.Atoi(args[1])
 					pos, err2 := strconv.Atoi(args[2])
 					if err1 != nil || err2 != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.UncheckElementItem(listpos, pos)
 					}
@@ -263,11 +275,13 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/delete") {
 				if len(args) < 3 {
 					replyMessage = ""
+					continue
 				} else {
 					listpos, err1 := strconv.Atoi(args[1])
 					pos, err2 := strconv.Atoi(args[2])
 					if err1 != nil || err2 != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.DeleteElementItem(listpos, pos)
 					}
@@ -278,10 +292,12 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/removelist") {
 				if len(args) < 2 {
 					replyMessage = ""
+					continue
 				} else {
 					pos, err := strconv.Atoi(args[1])
 					if err != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.RemoveList(pos)
 					}
@@ -303,6 +319,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/title ") {
 				if len(args) < 2 {
 					replyMessage = ""
+					continue
 				} else {
 					replyMessage = l.SetTitle(strings.Join(args[1:], " "))
 				}
@@ -312,6 +329,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/add ") {
 				if len(args) < 2 {
 					replyMessage = ""
+					continue
 				} else {
 					replyMessage = l.AddItem(strings.Join(args[1:], " "))
 				}
@@ -321,10 +339,12 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/edit ") {
 				if len(args) < 3 {
 					replyMessage = ""
+					continue
 				} else {
 					pos, err := strconv.Atoi(args[1])
 					if err != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.EditItem(pos, strings.Join(args[2:], " "))
 					}
@@ -335,10 +355,12 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/check ") {
 				if len(args) < 2 {
 					replyMessage = ""
+					continue
 				} else {
 					pos, err := strconv.Atoi(args[1])
 					if err != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.CheckItem(pos)
 					}
@@ -349,10 +371,12 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/cross ") {
 				if len(args) < 2 {
 					replyMessage = ""
+					continue
 				} else {
 					pos, err := strconv.Atoi(args[1])
 					if err != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.CrossItem(pos)
 					}
@@ -363,6 +387,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/unmark ") {
 				if len(args) < 2 {
 					replyMessage = ""
+					continue
 				} else {
 					pos, err := strconv.Atoi(args[1])
 					if err != nil {
@@ -377,10 +402,12 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			if strings.HasPrefix(content, "/delete ") {
 				if len(args) < 2 {
 					replyMessage = ""
+					continue
 				} else {
 					pos, err := strconv.Atoi(args[1])
 					if err != nil {
 						replyMessage = ""
+						continue
 					} else {
 						replyMessage = l.DeleteItem(pos)
 					}
