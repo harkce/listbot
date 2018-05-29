@@ -53,7 +53,7 @@ const (
 		"/unmark <nomor> - Menghilangkan tanda pada item\n\n" +
 		"/delete <nomor> - Hapus item dari list\n\n" +
 		"/clear - Hapus semua item dari list\n\n" +
-		"/multiple on - Mengaktifkan multiple list\n\n" +
+		"/multiple on - Mengaktifkan multiple list\nSaat pertama kali multiple list aktif, list yang ada akan disalin ke multiple list\n\n" +
 		"/help - Tampilkan perintah bot"
 
 	multipleHelp = "Perintah:\n" +
