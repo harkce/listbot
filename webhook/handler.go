@@ -30,39 +30,47 @@ var allowedPrefix = map[string]bool{
 	"/removelist": true,
 }
 
-const personalReply = "Halo! Makasih udah chat 😉\n" +
-	"Saat ini, list bot ngga bisa chat personal sama kamu, maaf yaa 🙏\n\n" +
-	"Kamu harus invite list bot ke grup/multi chat biar bisa nambahin list.\n\n" +
-	"Kalo ada pertanyaan, kesulitan, atau saran, kamu bisa langsung hubungi adminnya list bot 😃\n\n" +
-	"LINE: http://line.me/ti/p/~harkce"
+const (
+	personalReply = "Halo! Makasih udah chat 😉\n" +
+		"Saat ini, list bot ngga bisa chat personal sama kamu, maaf yaa 🙏\n\n" +
+		"Kamu harus invite list bot ke grup/multi chat biar bisa nambahin list.\n\n" +
+		"Kalo ada pertanyaan, kesulitan, atau saran, kamu bisa langsung hubungi adminnya list bot 😃\n\n" +
+		"LINE: http://line.me/ti/p/~harkce"
 
-const singleHelp = "Perintah:\n" +
-	"/list - Tampilkan item list\n\n" +
-	"/title <judul> - Ganti judul list\n\n" +
-	"/add <item> - Tambah item ke list\n\n" +
-	"/edit <nomor> <item> - Edit item di posisi <nomor>\n\n" +
-	"/check <nomor> - Menandai item dengan ✓\n\n" +
-	"/cross <nomor> - Menandai item dengan ✗\n\n" +
-	"/unmark <nomor> - Menghilangkan tanda pada item\n\n" +
-	"/delete <nomor> - Hapus item dari list\n\n" +
-	"/clear - Hapus semua item dari list\n\n" +
-	"/multiple on - Mengaktifkan multiple list\n\n" +
-	"/help - Tampilkan perintah bot"
+	firstJoin = "Halo! Makasih udah add aku ke grup/multi chat ini 😄\n\n" +
+		"Aku bisa bantu nge list apapun, tinggal kirim aja:\n/add <sesuatu>\n\n" +
+		"Buat ngasih judul list nya, kirim:\n/title <judul list>\n\n" +
+		"Kalo mau tau aku bisa ngapain aja, tinggal kirim:\n/help\n\n" +
+		"Mudah-mudahan aku bisa bermanfaat buat kalian 🙏"
 
-const multipleHelp = "Perintah:\n" +
-	"/newlist <judul> - Buat list baru\n\n" +
-	"/list - Tampilkan semua list\n\n" +
-	"/list <nomorlist> - Tampilkan item di list <nomorlist>\n\n" +
-	"/title <nomorlist> <judul> - Ganti judul list\n\n" +
-	"/add <nomorlist> <item> - Tambah item ke list <nomorlist>\n\n" +
-	"/edit <nomorlist> <nomoritem> <item> - Edit item list\n\n" +
-	"/check <nomorlist> <nomoritem> - Menandai item dengan ✓\n\n" +
-	"/cross <nomorlist> <nomoritem> - Menandai item dengan ✗\n\n" +
-	"/unmark <nomorlist> <nomoritem> - Menghilangkan tanda pada item\n\n" +
-	"/delete <nomorlist> <nomoritem> - Hapus item dari list <nomorlist>\n\n" +
-	"/removelist <nomorlist> - Hapus list nomor <nomorlist>\n\n" +
-	"/multiple off - Menonaktifkan multiple list\n\n" +
-	"/help - Tampilkan perintah bot"
+	singleHelp = "Perintah:\n" +
+		"/list - Tampilkan item list\n\n" +
+		"/title <judul> - Ganti judul list\n\n" +
+		"/add <item> - Tambah item ke list\n\n" +
+		"/edit <nomor> <item> - Edit item di posisi <nomor>\n\n" +
+		"/check <nomor> - Menandai item dengan ✓\n\n" +
+		"/cross <nomor> - Menandai item dengan ✗\n\n" +
+		"/unmark <nomor> - Menghilangkan tanda pada item\n\n" +
+		"/delete <nomor> - Hapus item dari list\n\n" +
+		"/clear - Hapus semua item dari list\n\n" +
+		"/multiple on - Mengaktifkan multiple list\n\n" +
+		"/help - Tampilkan perintah bot"
+
+	multipleHelp = "Perintah:\n" +
+		"/newlist <judul> - Buat list baru\n\n" +
+		"/list - Tampilkan semua list\n\n" +
+		"/list <nomorlist> - Tampilkan item di list <nomorlist>\n\n" +
+		"/title <nomorlist> <judul> - Ganti judul list\n\n" +
+		"/add <nomorlist> <item> - Tambah item ke list <nomorlist>\n\n" +
+		"/edit <nomorlist> <nomoritem> <item> - Edit item list\n\n" +
+		"/check <nomorlist> <nomoritem> - Menandai item dengan ✓\n\n" +
+		"/cross <nomorlist> <nomoritem> - Menandai item dengan ✗\n\n" +
+		"/unmark <nomorlist> <nomoritem> - Menghilangkan tanda pada item\n\n" +
+		"/delete <nomorlist> <nomoritem> - Hapus item dari list <nomorlist>\n\n" +
+		"/removelist <nomorlist> - Hapus list nomor <nomorlist>\n\n" +
+		"/multiple off - Menonaktifkan multiple list\n\n" +
+		"/help - Tampilkan perintah bot"
+)
 
 func hookResp(w http.ResponseWriter) {
 	w.WriteHeader(http.StatusOK)
@@ -82,6 +90,12 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 	}
 
 	for _, event := range events {
+		if event.Type == linebot.EventTypeJoin {
+			replyMessage := firstJoin
+			sendReply(event.ReplyToken, replyMessage)
+			continue
+		}
+
 		if unsupportedEvent(&event) {
 			log.Println("Unsupported event")
 			continue
