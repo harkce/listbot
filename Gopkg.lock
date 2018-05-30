@@ -14,10 +14,10 @@
   version = "v1.1"
 
 [[projects]]
+  branch = "master"
   name = "github.com/line/line-bot-sdk-go"
   packages = ["linebot"]
-  revision = "3a7d66f5efce6ac202f650134609f9d6d163a640"
-  version = "1.0.0"
+  revision = "424c05552d2c288cf4c127e96b3a40000f7520fc"
 
 [[projects]]
   name = "github.com/subosito/gotenv"
@@ -25,18 +25,9 @@
   revision = "009e1f9581dc712aba5682a279dee155ca3eeded"
   version = "v1.1.0"
 
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/net"
-  packages = [
-    "context",
-    "context/ctxhttp"
-  ]
-  revision = "8e0cdda24ed423affc8f35c241e5e9b16180338e"
-
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7df9cc612651f35668753cae6ccae482391e1addc4415cbd7b834a00fd3f7ed0"
+  inputs-digest = "6f63e60580063eb4f279c7ee84662afe32a80d39caaeb47fd341dfb3b7c53463"
   solver-name = "gps-cdcl"
   solver-version = 1
