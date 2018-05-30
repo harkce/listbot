@@ -27,7 +27,7 @@ type Element struct {
 const newItemHelper = "\nGunakan '/add <item>' untuk menambahkan item ke list"
 
 func Retrieve(ID string) (*List, error) {
-	l := List{List: make([]string, 0), Element: make([]Element, 0), GroupID: ID}
+	l := List{GroupID: ID, Title: "", List: make([]string, 0), Multiple: false, Element: make([]Element, 0)}
 
 	res, err := http.Get(fmt.Sprintf("%s/get/%s", os.Getenv("KV_HOST"), ID))
 	if err != nil {
