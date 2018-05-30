@@ -171,6 +171,9 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 						titles, ok := l.LoadTitle()
 
 						if ok {
+							if len(replyMessage) > 400 {
+								replyMessage = replyMessage[0:397] + "..."
+							}
 							sendReplyCarousel(replyToken, titles, replyMessage)
 							continue
 						}
@@ -182,6 +185,9 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 					titles, ok := l.LoadTitle()
 
 					if ok {
+						if len(replyMessage) > 400 {
+							replyMessage = replyMessage[0:397] + "..."
+						}
 						sendReplyCarousel(replyToken, titles, replyMessage)
 						continue
 					}
