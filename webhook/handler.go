@@ -472,6 +472,10 @@ func sendReplyCarousel(replyToken string, title []map[string]interface{}, altTex
 		}
 		txt = strings.Replace(txt, "\n", " ", -1)
 
+		if len(txt) > 40 {
+			txt = txt[0:37] + "..."
+		}
+
 		column := linebot.NewCarouselColumn("", txt, fmt.Sprintf("Ada %d item", title[i]["items"]), action)
 		carouselColumn = append(carouselColumn, column)
 	}
