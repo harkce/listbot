@@ -16,6 +16,7 @@ type Handler struct{}
 
 var allowedPrefix = map[string]bool{
 	"/list":       true,
+	"/all":        true,
 	"/title":      true,
 	"/add":        true,
 	"/edit":       true,
@@ -96,7 +97,7 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 			continue
 		}
 
-		if unsupportedEvent(&event) {
+		if unsupportedEvent(event) {
 			log.Println("Unsupported event")
 			continue
 		}
@@ -141,9 +142,9 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		if strings.HasPrefix(content, "/multiple") {
 			replyMessage = l.SetMultiple(args[1])
 			if l.Multiple {
-				replyMessage += "\n" + "Gunakan '/multiple off' untuk menonaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada multiple list"
+				replyMessage += "\n" + "Multiple list aktif\nGunakan '/multiple off' untuk menonaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada multiple list"
 			} else {
-				replyMessage += "\n" + "Gunakan '/multiple on' untuk mengaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada single list"
+				replyMessage += "\n" + "Multiple list nonaktif\nGunakan '/multiple on' untuk mengaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada single list"
 			}
 			sendReply(replyToken, replyMessage)
 			continue
@@ -167,12 +168,29 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 					pos, err = strconv.Atoi(args[1])
 					if err != nil {
 						replyMessage = l.LoadMultiple()
+						titles, ok := l.LoadTitle()
+
+						if ok {
+							sendReplyCarousel(replyToken, titles, replyMessage)
+							continue
+						}
 					} else {
 						replyMessage = l.LoadElement(pos)
 					}
 				} else {
 					replyMessage = l.LoadMultiple()
+					titles, ok := l.LoadTitle()
+
+					if ok {
+						sendReplyCarousel(replyToken, titles, replyMessage)
+						continue
+					}
 				}
+				sendReply(replyToken, replyMessage)
+				continue
+			}
+			if strings.HasPrefix(content, "/all") {
+				replyMessage = l.LoadMultiple()
 				sendReply(replyToken, replyMessage)
 				continue
 			}
@@ -433,6 +451,39 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 
 func sendReply(replyToken, content string) {
 	_, err := listbot.Client.ReplyMessage(replyToken, linebot.NewTextMessage(content)).Do()
+	if err != nil {
+		log.Println("Error reply:", err)
+	}
+}
+
+func sendReplyCarousel(replyToken string, title []map[string]interface{}, altText string) {
+	carouselColumn := make([]*linebot.CarouselColumn, 0, 10)
+	overList := len(title) > 10
+
+	loopAction := len(title)
+	if overList {
+		loopAction = 9
+	}
+	for i := 0; i < loopAction; i++ {
+		action := linebot.NewMessageTemplateAction("Lihat list", fmt.Sprintf("/list %d", i+1))
+		txt := title[i]["title"].(string)
+		if txt == "" {
+			txt = "List tanpa judul"
+		}
+		txt = strings.Replace(txt, "\n", " ", -1)
+
+		column := linebot.NewCarouselColumn("", txt, fmt.Sprintf("Ada %d item", title[i]["items"]), action)
+		carouselColumn = append(carouselColumn, column)
+	}
+	if overList {
+		action := linebot.NewMessageTemplateAction("Lihat semua", "/all")
+
+		column := linebot.NewCarouselColumn("", "Semua list", fmt.Sprintf("Total %d list", len(title)), action)
+		carouselColumn = append(carouselColumn, column)
+	}
+	carousel := linebot.NewCarouselTemplate(carouselColumn...)
+
+	_, err := listbot.Client.ReplyMessage(replyToken, linebot.NewTemplateMessage(altText, carousel)).Do()
 	if err != nil {
 		log.Println("Error reply:", err)
 	}

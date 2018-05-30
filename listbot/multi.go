@@ -62,6 +62,18 @@ func (l *List) LoadMultiple() string {
 	return listString + showListHelper
 }
 
+func (l *List) LoadTitle() ([]map[string]interface{}, bool) {
+	titles := make([]map[string]interface{}, 0)
+	for _, t := range l.Element {
+		elm := make(map[string]interface{})
+		elm["title"] = t.Title
+		elm["items"] = len(t.List)
+		titles = append(titles, elm)
+	}
+	notEmpty := len(titles) != 0
+	return titles, notEmpty
+}
+
 func (l *List) LoadElement(pos int) string {
 	if len(l.Element) == 0 {
 		return "List kosong" + newListHelper
