@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/harkce/listbot/listbot"
 	"github.com/harkce/listbot/server"
@@ -31,6 +32,8 @@ func main() {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
 
+	go alive()
+
 	go func() {
 		http.ListenAndServe(fmt.Sprintf(":%s", port), router)
 	}()
@@ -38,4 +41,19 @@ func main() {
 	<-sigChan
 	log.Println("Shutting down listbot...")
 	log.Println("listbot stopped")
+}
+
+func alive() {
+	for {
+		response, err := http.Get("http://line-listbot.herokuapp.com/me")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		defer response.Body.Close()
+		if response.StatusCode != 200 {
+			log.Fatalln(response.StatusCode, "status code")
+		}
+
+		time.Sleep(5 * time.Minute)
+	}
 }
