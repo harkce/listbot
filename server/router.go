@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/goware/cors"
@@ -19,6 +20,11 @@ func Router() http.Handler {
 
 	webhookHandler := webhook.Handler{}
 	router.POST("/webhook", webhookHandler.WebHook)
+	router.GET("/me", me)
 
 	return cors.Handler(router)
+}
+
+func me(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	fmt.Fprintf(w, "ok")
 }
