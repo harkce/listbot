@@ -142,9 +142,9 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 		if strings.HasPrefix(content, "/multiple") {
 			replyMessage = l.SetMultiple(args[1])
 			if l.Multiple {
-				replyMessage += "\n" + "Multiple list aktif\nGunakan '/multiple off' untuk menonaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada multiple list"
+				replyMessage += "\n" + "Gunakan '/multiple off' untuk menonaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada multiple list"
 			} else {
-				replyMessage += "\n" + "Multiple list nonaktif\nGunakan '/multiple on' untuk mengaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada single list"
+				replyMessage += "\n" + "Gunakan '/multiple on' untuk mengaktifkan multiple list\nKirim '/help' untuk mengetahui perintah bot pada single list"
 			}
 			sendReply(replyToken, replyMessage)
 			continue
@@ -225,7 +225,8 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 						replyMessage = ""
 						continue
 					} else {
-						replyMessage = l.AddElementItem(pos, strings.Join(args[2:], " "))
+						l.AddElementItem(pos, strings.Join(args[2:], " "))
+						replyMessage = l.LoadElement(pos)
 					}
 				}
 				sendReply(replyToken, replyMessage)
@@ -355,7 +356,8 @@ func (h *Handler) WebHook(w http.ResponseWriter, r *http.Request, _ httprouter.P
 					replyMessage = ""
 					continue
 				} else {
-					replyMessage = l.AddItem(strings.Join(args[1:], " "))
+					l.AddItem(strings.Join(args[1:], " "))
+					replyMessage = l.LoadList(groupID)
 				}
 				sendReply(replyToken, replyMessage)
 				continue
